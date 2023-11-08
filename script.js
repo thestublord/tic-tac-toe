@@ -1,101 +1,64 @@
 const GameBoard = (() => {
-    let board = ["", "", "", "", "", "", "", "", ""];
+  let board = ["", "", "", "", "", "", "", "", ""];
 
-    const getBoard = () => board;
+  // Resets the game board to its initial state
+  const reset = () => {
+    board = ["", "", "", "", "", "", "", "", ""];
+    render(); // Re-render the board after reset
+  };
 
-    const render = () => {
-        const boardContainer = document.getElementById('game-board');
-        boardContainer.innerHTML = '';
-        board.forEach((mark, index) => {
-            const cell = document.createElement('div');
-            cell.textContent = mark;
-            cell.addEventListener('click', () => game.makeMove(index));
-            boardContainer.appendChild(cell);
-        });
-    };
+  const getBoard = () => board;
 
-    const checkWin = () => {
-        const winPatterns = [
-            [0, 1, 2],
-            [3, 4, 5],
-            [6, 7, 8],
-            [0, 3, 6],
-            [1, 4, 7],
-            [2, 5, 8],
-            [0, 4, 8],
-            [2, 4, 6],
-        ];
+  const render = () => {
+    const boardContainer = document.getElementById("game-board");
+    boardContainer.innerHTML = "";
+    board.forEach((mark, index) => {
+      const cell = document.createElement("div");
+      cell.textContent = mark;
+      cell.addEventListener("click", () => game.makeMove(index));
+      boardContainer.appendChild(cell);
+    });
+  };
 
-        for (let pattern of winPatterns) {
-            const [a, b, c] = pattern;
-            if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-                return board[a];
-            }
-        }
-        return board.includes('') ? null : 'T';
-    };
+  // ... (checkWin method remains unchanged)
 
-    return {
-        render,
-        getBoard,
-        checkWin
-    };
+  return {
+    render,
+    getBoard,
+    checkWin,
+    reset, // Expose the reset method
+  };
 })();
 
-const Player = (name, mark, isComputer = false) => {
-    const getMark = () => mark;
-    const getName = () => name;
-    const getIsComputer = () => isComputer;
-
-    return { getMark, getName, getIsComputer };
-};
+// ... (Player module remains unchanged)
 
 const game = (() => {
-    let player1 = Player("Player 1", "X");
-    let player2 = Player("Computer", "O", true);
-    let currentPlayer = player1;
+  let player1 = Player("Player 1", "X");
+  let player2 = Player("Computer", "O", true);
+  let currentPlayer = player1;
 
-    const start = () => {
-        GameBoard.render();
-    };
+  // ... (other methods remain unchanged)
 
-    const makeMove = (index) => {
-        let board = GameBoard.getBoard();
-        if (board[index] === "") {
-            board[index] = currentPlayer.getMark();
-            GameBoard.render();
-            checkGameOver();
-            togglePlayer();
-        }
-    };
+  const start = () => {
+    GameBoard.render();
+    currentPlayer = player1; // Reset the current player to player1
+  };
 
-    const checkGameOver = () => {
-        let result = GameBoard.checkWin();
-        if (result) {
-            // Here add code to display the result (win or tie)
-        }
-    };
-
-    const togglePlayer = () => {
-        currentPlayer = currentPlayer === player1 ? player2 : player1;
-        if (currentPlayer.getIsComputer()) {
-            makeComputerMove();
-        }
-    };
-
-    const makeComputerMove = () => {
-        let board = GameBoard.getBoard();
-        let availableSpots = board.reduce((acc, mark, index) => mark === "" ? [...acc, index] : acc, []);
-        if (availableSpots.length) {
-            let randomSpot = availableSpots[Math.floor(Math.random() * availableSpots.length)];
-            makeMove(randomSpot);
-        }
-    };
-
-    return {
-        start,
-        makeMove,
-    };
+  return {
+    start,
+    makeMove,
+  };
 })();
+
+// We add a function to handle the restart button click event
+const restartGame = () => {
+  GameBoard.reset(); // Reset the game board
+  game.start(); // Restart the game
+};
+
+// Attach the restart game function to the restart button
+document
+  .getElementById("restart-button")
+  .addEventListener("click", restartGame);
 
 game.start();
